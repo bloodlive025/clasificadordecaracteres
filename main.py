@@ -101,22 +101,20 @@ main_html = """
 </html>
 """
 
-
 @app.route("/")
 def main():
-    return (main_html)
-
+    return(main_html)
 
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
         # check if the post request has the file part
-        img_data = request.form.get('myImage').replace("data:image/png;base64,", "")
+        img_data = request.form.get('myImage').replace("data:image/png;base64,","")
         aleatorio = request.form.get('numero')
         print(aleatorio)
-        with tempfile.NamedTemporaryFile(delete=False, mode="w+b", suffix='.png', dir=str(aleatorio)) as fh:
+        with tempfile.NamedTemporaryFile(delete = False, mode = "w+b", suffix='.png', dir=str(aleatorio)) as fh:
             fh.write(base64.b64decode(img_data))
-        # file = request.files['myImage']
+        #file = request.files['myImage']
         print("Image uploaded")
     except Exception as err:
         print("Error occurred")
@@ -131,33 +129,24 @@ def prepare_dataset():
     d = ["а", "э", "ы", "и", "о", "у"]
     digits = []
     for digit in d:
-        filelist = glob.glob('{}/*.png'.format(digit))
-        images_read = io.concatenate_images(io.imread_collection(filelist))
-        images_read = images_read[:, :, :, 3]
-        digits_read = np.array([digit] * images_read.shape[0])
-        images.append(images_read)
-        digits.append(digits_read)
+      filelist = glob.glob('{}/*.png'.format(digit))
+      images_read = io.concatenate_images(io.imread_collection(filelist))
+      images_read = images_read[:, :, :, 3]
+      digits_read = np.array([digit] * images_read.shape[0])
+      images.append(images_read)
+      digits.append(digits_read)
     images = np.vstack(images)
     digits = np.concatenate(digits)
-
-    # Convertir las vocales rusas a valores numéricos
-    equivalencias = {'а': 0, 'э': 1, 'ы': 2, 'и': 3, 'о': 4, 'у': 5}
-    y = np.array([equivalencias[indice] for indice in digits])
-
     np.save('X.npy', images)
-    np.save('y.npy', y)
+    np.save('y.npy', digits)
     return "OK!"
-
 
 @app.route('/X.npy', methods=['GET'])
 def download_X():
     return send_file('./X.npy')
-
-
 @app.route('/y.npy', methods=['GET'])
 def download_y():
     return send_file('./y.npy')
-
 
 if __name__ == "__main__":
     # Crea directorios para cada vocal rusa
