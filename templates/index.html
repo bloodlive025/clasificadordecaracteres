@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Aldea Ninja</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body onload="InitThis();">
+    <script src="../static/js/config.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+    <div class="contenedor centrar">
+        <h1 id="mensaje">Dibuja un símbolo de aldea ninja</h1>
+        <canvas id="myCanvas" width="350" height="350" style="border:2px solid black"></canvas>
+        <button onclick="clearArea();" style="font-size: 1.5rem; margin: 1rem;">Borrar</button>
+        <form method="post" action="predict" onsubmit="prepareImg();" enctype="multipart/form-data">
+            <input id="myImage" name="myImage" type="hidden">
+            <input type="submit" value="Predecir" style="font-size: 1.5rem;">
+        </form>
+    </div>
+</body>
+</html>
