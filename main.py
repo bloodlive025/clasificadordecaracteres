@@ -7,6 +7,10 @@ from flask import Flask, request, redirect, render_template, url_for, send_file
 from skimage import io
 from skimage.transform import resize
 from tensorflow.keras.models import load_model
+import uuid  # Agregar esta importación al inicio
+
+# Diccionario para almacenar resultados temporalmente
+prediction_cache = {}
 
 # Cargar modelo
 model = load_model('model/modelo.h5')
@@ -80,7 +84,7 @@ def download_X():
 def download_y():
     return send_file('./y.npy')
 
-# Predicción desde dibujo
+# Modificar la función predict
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
@@ -101,21 +105,43 @@ def predict():
         salida = model.predict(image_reshaped)[0]
         predicciones = salida * 100
         predicciones_formateadas = [f'{p:.2f}' for p in predicciones]
-        cadena_resultados = ', '.join(predicciones_formateadas)
+        
+        # Generar un ID único para esta predicción
+        prediction_id = str(uuid.uuid4())
+        
+        # Guardar los resultados en cache
+        prediction_cache[prediction_id] = {
+            'predicciones': predicciones_formateadas,
+            'img_data': img_data
+        }
+        
+        # Limpiar cache viejo (opcional, para evitar memoria infinita)
+        if len(prediction_cache) > 100:  # Mantener solo las últimas 100 predicciones
+            oldest_key = next(iter(prediction_cache))
+            del prediction_cache[oldest_key]
 
-        return redirect(url_for('show_predictions', nums=cadena_resultados, img_data=img_data))
+        return redirect(url_for('show_predictions', prediction_id=prediction_id))
     except Exception as e:
         print("Error al predecir:", e)
         return redirect("/", code=302)
 
-# Mostrar resultados
+# Modificar la función show_predictions
 @app.route('/predicciones')
 def show_predictions():
-    nums = request.args.get('nums')
-    img_data = request.args.get('img_data')
+    prediction_id = request.args.get('prediction_id')
+    
+    if not prediction_id or prediction_id not in prediction_cache:
+        return redirect("/", code=302)
+    
+    data = prediction_cache[prediction_id]
+    nums_lista = [float(x) for x in data['predicciones']]
+    img_data = data['img_data']
+    
     aldeas = ['Rocas', 'Niebla', 'Hojas', 'Nubes', 'Arena']
-    nums_lista = [float(x) for x in nums.split(', ')]
-
+    
+    # Opcional: limpiar este resultado del cache después de mostrarlo
+    # del prediction_cache[prediction_id]
+    
     return render_template('Prediccion.html', nums=nums_lista, aldeas=aldeas, img_data=img_data)
 
 if __name__ == "__main__":
