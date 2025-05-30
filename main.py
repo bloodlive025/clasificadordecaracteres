@@ -119,4 +119,4 @@ def show_predictions():
     return render_template('Prediccion.html', nums=nums_lista, aldeas=aldeas, img_data=img_data)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
