@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Resultado de Predicción</title>
+    <link rel="stylesheet" href="../static/css/predict.css">
+</head>
+<body>
+
+<div class="contenedor">
+    <h1>Símbolo detectado</h1>
+    <img src="data:image/png;base64,{{ img_data }}" alt="Símbolo de aldea" style="max-width: 300px;">
+
+    <ul>
+        {% for num in nums %}
+            <li>{{ num }}% {{ aldeas[loop.index0] }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="/">Ir a la página principal</a>
+</div>
+
+</body>
+</html>
